@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Valentine 💘</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+}
+
+.screen {
+  display: none;
+  padding: 20px;
+  max-width: 90%;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.active { display: block; opacity: 1; }
+
+h1, p, .message { text-shadow: 2px 2px 6px rgba(0,0,0,0.5); }
+h1 { font-size: 2.5rem; margin-bottom: 10px; }
+p { font-size: 1.2rem; }
+
+button {
+  padding: 15px 25px;
+  margin: 15px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  background: #ff4d6d;
+  color: white;
+  transition: transform 0.2s, opacity 1s;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  opacity: 1;
+}
+
+button.show { opacity: 1; }
+
+.heart, .sticker {
+  position: absolute;
+  bottom: -20px;
+  font-size: 20px;
+  animation: floatUp 6s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-110vh); opacity: 0; }
+}
+
+.confetti {
+  position: absolute;
+  top: -20px;
+  font-size: 24px;
+  animation: fall 3s linear infinite;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+.letter {
+  font-size: 80px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+}
+
+.letter:hover { transform: scale(1.1); }
+
+.hidden { display: none; }
+
+#herPic {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+#finalMessage {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  padding: 20px;
+  border-radius: 20px;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #d2bfff;
+  background: rgba(0,0,0,0.3);
+  display: inline-block;
+}
+
+#herPicButtonOverlay {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.hoverMsg {
+  position: absolute;
+  font-size: 1rem;
+  color: #ff69b4;
+  display: none;
+  pointer-events: none;
+  text-shadow: 1px 1px 2px black;
+}
+
+#countdown {
+  position: fixed;
+  font-size: 3rem;
+  top: 40%;
+  width: 100%;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+</style>
+</head>
+<body>
+
+<!-- MUSIC -->
+<audio id="music" loop>
+  <source src="ytmp3free.cc_i-think-they-call-this-love-cover-youtubemp3free.org.mp3" type="audio/mpeg">
+</audio>
+
+<!-- COUNTDOWN -->
+<div id="countdown"></div>
+
+<!-- FIRST QUESTION -->
+<div id="firstQuestion" class="screen active">
+  <h1>Hey beautiful 💖</h1>
+  <p>Do you want to see the love of my life? 🥹</p>
+  <button id="firstYesBtn" onclick="startCountdown()">YES 💗</button>
+</div>
+
+<!-- HER PIC -->
+<div id="herPicButton" class="screen">
+  <img id="herPic" src="627540358_1198074055871505_1371315424806265894_n.jpg" alt="My Love">
+  <div id="herPicButtonOverlay">
+    <button onclick="goToValentineQuestion()">Now let's move on to the next question 🤭</button>
+  </div>
+</div>
+
+<!-- VALENTINE QUESTION -->
+<div id="main" class="screen">
+  <h1>Now will you be my Valentine plij ? 🥹💘</h1>
+  <button onclick="celebrate()">YES 💖</button>
+  <button onclick="celebrate()">NO 🙄</button>
+</div>
+
+<!-- CELEBRATION -->
+<div id="celebration" class="screen">
+  <h1>YAYAYAYAY SO YOU AGREED !! 🎉🥹</h1>
+  <p>Someone just made me the happiest person 💗</p>
+  <button onclick="goToLetter()">Next ➡️</button>
+</div>
+
+<!-- LETTER -->
+<div id="letterScreen" class="screen">
+  <h1>Tap the love letter 💌</h1>
+  <p>(Click it 3 times 🤭)</p>
+  <div class="letter" onclick="openLetter()">💌</div>
+  <div id="finalMessage" class="message hidden"></div>
+</div>
+
+<!-- Hover messages -->
+<div class="hoverMsg" id="hover1">🥰 You are my world!</div>
+<div class="hoverMsg" id="hover2">💗 Forever yours</div>
+
+<script>
+const music = document.getElementById("music");
+let clickCount = 0;
+let confettiInterval;
+const finalText = "Happy Valentine’s my love 💗🎀\n\nI hope you liked this 🤭\n\nI also want to say…\n\nI want to marry you, raise our child, and live with you happily forever. You just dunno how much I love you darling. Its not much I can give you but I hope you liked this. You know I love you soooo much and I'll always love you. My feeling for you may increase even more but will never falter my love. I wish we'll always be happy and understanding with eachother. And don't worry even if I make jokes on I'll never come to see you, I'll come to see you darling. And then I'll make sure you have the best day in your life 🥹🥹. And finally I want you to know that, I just need you ! no one else and no  one can take you place. You are the best thing god blessed me with. Thankyou for loving me. Thankyou for being with me all the time when no one was there and thankyou for being my everything. Thats all... With lots of love. Your man, Frog 🐸🎀";
+let typedIndex = 0;
+
+// Countdown starts after YES click, music starts immediately
+function startCountdown() {
+  music.play(); // start music immediately
+  const btn = document.getElementById("firstYesBtn");
+  btn.style.display = "none";
+
+  let countdownEl = document.getElementById("countdown");
+  let count = 3;
+  countdownEl.style.opacity = 1;
+  countdownEl.textContent = count;
+
+  let countdownInterval = setInterval(() => {
+    count--;
+    if(count > 0) {
+      countdownEl.textContent = count;
+    } else {
+      clearInterval(countdownInterval);
+      countdownEl.style.opacity = 0;
+      showHerPic();
+    }
+  }, 1000);
+}
+
+function showHerPic() {
+  document.getElementById("firstQuestion").classList.remove("active");
+  document.getElementById("herPicButton").classList.add("active");
+  const herPic = document.getElementById("herPic");
+  herPic.style.display = "block";
+  setTimeout(()=> herPic.style.opacity=1, 50);
+  document.getElementById("herPicButtonOverlay").style.opacity = 1;
+  setInterval(createHeart, 300);
+  setInterval(createSticker, 500);
+}
+
+function goToValentineQuestion() {
+  document.getElementById("herPicButton").classList.remove("active");
+  document.getElementById("main").classList.add("active");
+}
+
+function celebrate() {
+  document.getElementById("main").classList.remove("active");
+  document.getElementById("celebration").classList.add("active");
+  confettiInterval = setInterval(createConfetti, 200);
+}
+
+function goToLetter() {
+  clearInterval(confettiInterval);
+  document.getElementById("celebration").classList.remove("active");
+  document.getElementById("letterScreen").classList.add("active");
+}
+
+function openLetter() {
+  clickCount++;
+  if(clickCount === 3) { // final message appears only after 3 clicks
+    typeFinalMessage();
+  }
+}
+
+// Typing effect
+function typeFinalMessage() {
+  const el = document.getElementById("finalMessage");
+  el.classList.remove("hidden");
+  el.textContent = "";
+  typedIndex = 0;
+  function type() {
+    if(typedIndex < finalText.length) {
+      el.textContent += finalText[typedIndex];
+      typedIndex++;
+      setTimeout(type, 50);
+    }
+  }
+  type();
+}
+
+function createHeart() {
+  const heart = document.createElement("div");
+  heart.classList.add("heart");
+  heart.innerHTML = "💖";
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.fontSize = Math.random() * 20 + 15 + "px";
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),6000);
+}
+
+function createSticker() {
+  const sticker = document.createElement("div");
+  sticker.classList.add("sticker");
+  sticker.innerHTML = ["🌸","🐰","🍓","🦋","🧸"][Math.floor(Math.random()*5)];
+  sticker.style.left = Math.random() * 100 + "vw";
+  sticker.style.fontSize = Math.random() * 25 + 15 + "px";
+  document.body.appendChild(sticker);
+  setTimeout(()=>sticker.remove(),6000);
+}
+
+function createConfetti() {
+  const confetti = document.createElement("div");
+  confetti.classList.add("confetti");
+  confetti.innerHTML = ["🎉","🎊","💖","🪅","✨"][Math.floor(Math.random()*5)];
+  confetti.style.left = Math.random()*100 + "vw";
+  document.body.appendChild(confetti);
+  setTimeout(()=>confetti.remove(),3000);
+}
+
+// Hover messages
+document.addEventListener('mousemove', e=>{
+  const hover1 = document.getElementById("hover1");
+  const hover2 = document.getElementById("hover2");
+  hover1.style.left = (e.clientX + 10) + 'px';
+  hover1.style.top = (e.clientY + 10) + 'px';
+  hover2.style.left = (e.clientX + 20) + 'px';
+  hover2.style.top = (e.clientY + 20) + 'px';
+  hover1.style.display = Math.random() > 0.995 ? 'block' : 'none';
+  hover2.style.display = Math.random() > 0.995 ? 'block' : 'none';
+});
+</script>
+
+</body>
+</html>
